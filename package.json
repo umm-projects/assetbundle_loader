@@ -1,10 +1,10 @@
 {
-  "name": "@umm/project_assetbundle_loader",
+  "name": "@umm/simpleloader_assetbundle",
   "version": "1.0.0",
   "description": "AssetBundle loader supports divided projects",
-  "homepage": "https://github.com/umm-projects/project_assetbundle_loader",
+  "homepage": "https://github.com/umm-projects/simpleloader_assetbundle",
   "bugs": {
-    "url": "https://github.com/umm-projects/project_assetbundle_loader/issues"
+    "url": "https://github.com/umm-projects/simpleloader_assetbundle/issues"
   },
   "scripts": {
     "umm:init": "./scripts/umm/init",
@@ -17,13 +17,17 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git@github.com:umm-projects/project_assetbundle_loader"
+    "url": "git@github.com:umm-projects/simpleloader_assetbundle"
   },
   "files": [
     "Assets",
     "scripts"
   ],
   "dependencies": {
+    "@umm/environment_setting": "^1.1.4",
+    "@umm/singleton": "^1.0.0",
+    "@umm/unirx": "^1.0.0",
+    "@umm/unirx_observableunitywebrequest": "^1.1.1",
     "glob": "^7.1.2",
     "mkdirp": "^0.5.1",
     "ncp": "^2.0.0",
