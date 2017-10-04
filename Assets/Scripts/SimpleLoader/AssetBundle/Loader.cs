@@ -2,15 +2,11 @@
 using System.IO;
 using System.Linq;
 using UniRx;
+using UnityModule.Settings;
 
-namespace ProjectManagement.AssetBundle {
+namespace SimpleLoader.AssetBundle {
 
     public class Loader {
-
-        /// <summary>
-        /// Root AssetBundleManifest のキャッシュ保存先パスフォーマット
-        /// </summary>
-        private const string CACHE_PATH_ROOT_ASSET_BUNDLE_MANIFEST_FORMAT = "AssetBundles/{0}";
 
         public string ProjectName {
             get;
@@ -95,7 +91,7 @@ namespace ProjectManagement.AssetBundle {
             Manager.Instance.GetProgressNotifier(this.ProjectName).TotalCount = this.RootAssetBundleManifest.GetAllAssetBundles().Count();
             return this.RootAssetBundleManifest
                 .GetAllAssetBundles()
-                .Select(assetBundleName => this.FetchAsObservable(assetBundleName, true))
+                .Select(assetBundleName => this.FetchAssetBundleAsObservable(assetBundleName, true))
                 .WhenAll()
                 .AsUnitObservable();
         }
@@ -107,13 +103,13 @@ namespace ProjectManagement.AssetBundle {
         /// <returns>全てのダウンロードが完了したら値が流れるストリーム</returns>
         private IObservable<UnityEngine.AssetBundle> LoadAssetBundleWithDependenciesAsObservable(string assetBundleName) {
             if (!this.AssetBundleDependencieListMap.ContainsKey(assetBundleName) || this.AssetBundleDependencieListMap[assetBundleName].Count == 0) {
-                return this.FetchAsObservable(assetBundleName, false);
+                return this.FetchAssetBundleAsObservable(assetBundleName, false);
             }
             // 再帰的に依存 AssetBundle を読み込み
             return this.AssetBundleDependencieListMap[assetBundleName]
                 .Select(this.LoadAssetBundleWithDependenciesAsObservable)
                 .WhenAll()
-                .SelectMany(_ => this.FetchAsObservable(assetBundleName, false));
+                .SelectMany(_ => this.FetchAssetBundleAsObservable(assetBundleName, false));
         }
 
         /// <summary>
@@ -122,7 +118,7 @@ namespace ProjectManagement.AssetBundle {
         /// <param name="assetBundleName">AssetBundle 名</param>
         /// <param name="shouldUnloadImmediately">自動 Unload するかどうか</param>
         /// <returns>ダウンロードが完了した AssetBundle のインスタンスが流れるストリーム</returns>
-        private IObservable<UnityEngine.AssetBundle> FetchAsObservable(string assetBundleName, bool shouldUnloadImmediately) {
+        private IObservable<UnityEngine.AssetBundle> FetchAssetBundleAsObservable(string assetBundleName, bool shouldUnloadImmediately) {
             ScheduledNotifier<float> scheduledNotifier = new ScheduledNotifier<float>();
             scheduledNotifier.Subscribe(x => Manager.Instance.GetProgressNotifier(this.ProjectName).Report(assetBundleName, x));
             return ObservableUnityWebRequest
@@ -162,7 +158,7 @@ namespace ProjectManagement.AssetBundle {
         /// </summary>
         /// <returns>ダウンロードが完了した AssetBundle のインスタンスが流れるストリーム</returns>
         private IObservable<Unit> FetchRootAssetBundleAsObservable() {
-            string rootAssetBundleManifestPath = Path.Combine(UnityEngine.Application.persistentDataPath, string.Format(CACHE_PATH_ROOT_ASSET_BUNDLE_MANIFEST_FORMAT, this.ProjectName));
+            string rootAssetBundleManifestPath = Path.Combine(UnityEngine.Application.persistentDataPath, string.Format(EnvironmentSetting.Instance.AssetBundleCachePathFormat, this.ProjectName, UnityEngine.Application.version));
             IObservable<UnityEngine.AssetBundle> stream;
             if (UnityEngine.Application.internetReachability == UnityEngine.NetworkReachability.NotReachable && File.Exists(rootAssetBundleManifestPath)) {
                 stream = Observable

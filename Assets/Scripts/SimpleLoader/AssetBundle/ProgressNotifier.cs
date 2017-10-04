@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using UniRx;
 
-namespace ProjectManagement.AssetBundle {
+namespace SimpleLoader.AssetBundle {
 
     public class ProgressNotifier {
 

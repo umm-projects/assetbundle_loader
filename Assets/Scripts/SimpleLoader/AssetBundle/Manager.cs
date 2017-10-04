@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityModule;
 
-namespace ProjectManagement.AssetBundle {
+namespace SimpleLoader.AssetBundle {
 
     public class Manager : Singleton<Manager> {
 

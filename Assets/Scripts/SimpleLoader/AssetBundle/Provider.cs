@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityModule.Settings;
 
-namespace ProjectManagement.AssetBundle {
+namespace SimpleLoader.AssetBundle {
 
     public interface ISourceProvider {
 
