@@ -8,10 +8,9 @@ namespace SimpleLoader.AssetBundle {
 
     public class Loader {
 
-        public string ProjectName {
-            get;
-            set;
-        }
+        public string RootAssetBundleName { get; set; }
+
+        public ProgressNotifier ProgressNotifier { get; set; }
 
         public UnityEngine.AssetBundleManifest RootAssetBundleManifest {
             get;
@@ -88,7 +87,7 @@ namespace SimpleLoader.AssetBundle {
         /// <remarks>ダウンロードするだけなので、即 Unload します</remarks>
         /// <returns>ダウンロードが完了したことを通知するストリーム</returns>
         private IObservable<Unit> FetchAllAssetBundlesAsObservable() {
-            Manager.Instance.GetProgressNotifier(this.ProjectName).TotalCount = this.RootAssetBundleManifest.GetAllAssetBundles().Count();
+            this.ProgressNotifier.TotalCount = this.RootAssetBundleManifest.GetAllAssetBundles().Count();
             return this.RootAssetBundleManifest
                 .GetAllAssetBundles()
                 .Select(assetBundleName => this.FetchAssetBundleAsObservable(assetBundleName, true))
@@ -120,7 +119,7 @@ namespace SimpleLoader.AssetBundle {
         /// <returns>ダウンロードが完了した AssetBundle のインスタンスが流れるストリーム</returns>
         private IObservable<UnityEngine.AssetBundle> FetchAssetBundleAsObservable(string assetBundleName, bool shouldUnloadImmediately) {
             ScheduledNotifier<float> scheduledNotifier = new ScheduledNotifier<float>();
-            scheduledNotifier.Subscribe(x => Manager.Instance.GetProgressNotifier(this.ProjectName).Report(assetBundleName, x));
+            scheduledNotifier.Subscribe(x => this.ProgressNotifier.Report(assetBundleName, x));
             return ObservableUnityWebRequest
                 .GetAssetBundle(
                     Manager.Instance.SourceProvider.DeterminateURL(assetBundleName),
@@ -158,14 +157,14 @@ namespace SimpleLoader.AssetBundle {
         /// </summary>
         /// <returns>ダウンロードが完了した AssetBundle のインスタンスが流れるストリーム</returns>
         private IObservable<Unit> FetchRootAssetBundleAsObservable() {
-            string rootAssetBundleManifestPath = Path.Combine(UnityEngine.Application.persistentDataPath, string.Format(EnvironmentSetting.Instance.AssetBundleCachePathFormat, this.ProjectName, UnityEngine.Application.version));
+            string rootAssetBundleManifestPath = Path.Combine(UnityEngine.Application.persistentDataPath, string.Format(EnvironmentSetting.Instance.AssetBundleCachePathFormat, this.RootAssetBundleName, UnityEngine.Application.version));
             IObservable<UnityEngine.AssetBundle> stream;
             if (UnityEngine.Application.internetReachability == UnityEngine.NetworkReachability.NotReachable && File.Exists(rootAssetBundleManifestPath)) {
                 stream = Observable
                     .Return(UnityEngine.AssetBundle.LoadFromFile(rootAssetBundleManifestPath));
             } else {
                 stream = ObservableUnityWebRequest
-                    .GetUnityWebRequest(Manager.Instance.SourceProvider.DeterminateURL(this.ProjectName, true))
+                    .GetUnityWebRequest(Manager.Instance.SourceProvider.DeterminateURL(this.RootAssetBundleName, true))
                     .Select(
                         (unityWebRequest) => {
                             if (!Directory.Exists(Path.GetDirectoryName(rootAssetBundleManifestPath)) && !string.IsNullOrEmpty(Path.GetDirectoryName(rootAssetBundleManifestPath))) {

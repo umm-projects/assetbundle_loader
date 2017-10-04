@@ -41,20 +41,29 @@ namespace SimpleLoader.AssetBundle {
             }
         }
 
-        public Loader GetLoader(string projectName) {
-            if (!this.LoaderMap.ContainsKey(projectName)) {
-                this.LoaderMap[projectName] = new Loader() {
-                    ProjectName = projectName,
-                };
-            }
-            return this.LoaderMap[projectName];
+        public Loader GetLoader() {
+            return this.GetLoader(string.Empty);
         }
 
-        public ProgressNotifier GetProgressNotifier(string projectName) {
-            if (!this.ProgressNotifierMap.ContainsKey(projectName)) {
-                this.ProgressNotifierMap[projectName] = new ProgressNotifier();
+        public Loader GetLoader(string key) {
+            if (!this.LoaderMap.ContainsKey(key)) {
+                this.LoaderMap[key] = new Loader() {
+                    RootAssetBundleName = key,
+                    ProgressNotifier = this.GetProgressNotifier(key),
+                };
             }
-            return this.ProgressNotifierMap[projectName];
+            return this.LoaderMap[key];
+        }
+
+        public ProgressNotifier GetProgressNotifier() {
+            return this.GetProgressNotifier(string.Empty);
+        }
+
+        public ProgressNotifier GetProgressNotifier(string key) {
+            if (!this.ProgressNotifierMap.ContainsKey(key)) {
+                this.ProgressNotifierMap[key] = new ProgressNotifier();
+            }
+            return this.ProgressNotifierMap[key];
         }
 
     }
