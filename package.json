@@ -24,7 +24,7 @@
     "scripts"
   ],
   "dependencies": {
-    "@umm/environment_setting": "^1.1.4",
+    "@umm/environment_setting": "^1.1.5",
     "@umm/singleton": "^1.0.0",
     "@umm/unirx": "^1.0.0",
     "@umm/unirx_observableunitywebrequest": "^1.1.1",
