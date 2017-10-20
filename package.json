@@ -1,6 +1,6 @@
 {
   "name": "@umm/simpleloader_assetbundle",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "AssetBundle loader supports divided projects",
   "homepage": "https://github.com/umm-projects/simpleloader_assetbundle",
   "bugs": {
